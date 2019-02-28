@@ -1,0 +1,2 @@
+# multiviewtest
+R package that implements a hypothesis test for whether clusterings of two data views are independent from Gao, L.L., Bien, J., and Witten, D. (2019) "Are Clusterings of Multiple Data Views Independent?", Biostatistics, DOI: 10.1093/biostatistics/kxz001.

@@ -1,0 +1,11 @@
+095d9d84a339a28fb72c4b756cb5de1b *DESCRIPTION
+7d62ef4ff5f8bf79a4a88f33a88b2167 *NAMESPACE
+b2e5de67d0b669fa903e337bfff97726 *R/multiviewtest.R
+3871919c53db7d40cd6c5ede65436290 *R/optimize_over_Pi.R
+31ade62ebdb89cc0c01927b94eda9c11 *R/test_indep_clust.R
+395b7f86fd38cfab324a633ce00713cf *R/test_indep_clust_subset.R
+e456d244afe0eb7dd2ced2c2a08b8e6a *README.md
+4be03f6f8cadea3da0369cb13430c113 *man/multiviewtest-package.Rd
+20765eeefccfa28e437e33d6d763ecae *man/optimize_over_Pi.Rd
+83b1fd46b552ec46fafb2ad6c0df1d54 *man/test_indep_clust.Rd
+cd7a41f813a89db840da062623a6af85 *man/test_indep_clust_subset.Rd
