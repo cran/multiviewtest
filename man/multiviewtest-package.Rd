@@ -3,23 +3,40 @@
 \docType{package}
 \name{multiviewtest-package}
 \alias{multiviewtest-package}
-\title{multiviewtest: A hypothesis test for dependent clusterings of two data views.}
+\title{multiviewtest: Hypothesis tests for association between subgroups in two data views.}
 \description{
-The multiviewtest package implements
-the hypothesis test for dependent clusterings of two data views
-as proposed in Gao, L.L., Bien, J., and Witten, D. (2019)
-Biostatistics <DOI:10.1093/biostatistics/kxz001>.
+The multiviewtest package implements three tests for association between subgroups in 
+two data views: 
+1. The PLRT for association between clusterings of two multivariate data views
+2. The P2LRT for association between communities in two network data views
+3. The P2LRT for association between communities in a network view, 
+and clusters in a multivariate data view
+}
+\details{
+The PLRT was proposed in Gao, Bien, and Witten (2019) Are Clusterings of 
+Multiple Data Views Independent? Biostatistics, DOI: 10.1093/biostatistics/kxz001.
+
+The P2LRT was proposed in Gao, Witten, Bien (2019+) Testing for Association 
+in Multi-View Network Data, in preparation.
 }
 \section{Dependencies}{
- mclust (>= 5.3), matrixStats (>= 0.52.2)
+ mclust (>= 5.3), matrixStats (>= 0.52.2), Matrix, randnet, doParallel, irbla
 }
 
 \section{multiviewtest functions}{
 
-\code{test_indep_clust}: Tests whether clusterings of two data views are independent.
-\code{test_indep_clust_subset}: Tests whether clusterings of two data views are independent,
+\code{test_indep_clust}: Tests whether clusterings of two multivariate data views are independent.
+\code{test_indep_clust_subset}: Tests whether clusterings of two multivariate data views are independent,
 allowing for clustering on the full data views and comparing on subsets of the data views.
+\code{test_indep_com}: Tests whether communities in two network data views are independent. 
+\code{test_indep_com_clust}: Test whether communities in a network data view and clusters in a 
+multivariate data view are independent.
 \code{optimize_over_pi_clust}: An optimization algorithm used in the test of whether clusterings
 of two data views are independent.
+\code{mv_memberships_gen}: Generates subgroup memberships in two data views. 
+\code{mv_gmm_gen}: Generates two multivariate data views, where each view follows a Gaussian mixture model. 
+\code{mv_sbm_gen}: Generates two network data views, where each view follows a stochastic block model. 
+\code{mv_sbm_gmm_gen}: Generates a network view and a multivariate view, where the network view follows
+a stochastic block model and the multivariate view follows a Gaussian mixture model.
 }
 

@@ -109,136 +109,157 @@
 #' # The cluster assignments in view 2
 #' indep1$modelfit2$classification
 #'
-#'
 #' @references
-#' Scrucca L., Fop M., Murphy T. B. and Raftery A. E. (2016)
-#' mclust 5: clustering, classification and density estimation
-#' using Gaussian finite mixture models, The R Journal, 8/1, pp. 205-233.
-#'
 #' Fraley C. and Raftery A. E. (2002) Model-based clustering,
 #' discriminant analysis and density estimation,
 #' Journal of the American Statistical Association, 97/458, pp. 611-631.
 #'
 #' Gao, L.L., Bien, J., Witten, D. (2019) Are Clusterings of Multiple Data Views Independent?
-#' Biostatistics <DOI:10.1093/biostatistics/kxz001>.
+#' Biostatistics, <DOI:10.1093/biostatistics/kxz001>
 #'
+#' Scrucca L., Fop M., Murphy T. B. and Raftery A. E. (2016)
+#' mclust 5: clustering, classification and density estimation
+#' using Gaussian finite mixture models, The R Journal, 8/1, pp. 205-233.
 test_indep_clust_subset <- function(x,  model1="EII", model2="EII",
                                     K1=NULL, K2=NULL,
                                     subset1, subset2,
                                     init1=NULL, init2=NULL,
                                     B=200, step=0.001, maxiter=1000) {
-
-  if(typeof(x) != "list") {
-    stop("x is not in the right format; should be a list of two matrices
-         (or vectors, for univariate data)")
-  } else {
+  input_check <- function(x, model1, model2, K1, K2, subset1, subset2, 
+                          init1, init2, B, step, maxiter) { 
+    if(typeof(x) != "list") {
+      stop("x is not in the right format; should be a list of two matrices
+           (or vectors, for univariate data)")
+    } 
+    
     if(length(x) != 2) {
       stop("x is not in the right format; should be a list of two numeric matrices
            (or vectors, for univariate data)")
-    }  else {
-      if(!is.numeric(x[[1]]) || !is.numeric(x[[2]])) {
-        stop("x is not in the right format; should be a list of two numeric matrices
-             (or vectors, for univariate data)")
-      } else {
-        if(is.matrix(x[[1]]) != is.matrix(x[[2]])) {
-          stop("x is not in the right format; should be a list of two numeric matrices
-               (or vectors, for univariate data)")
-        }
-        }
-      }
-  }
+    }  
+    
+    if(!is.numeric(x[[1]]) || !is.numeric(x[[2]])) {
+      stop("x is not in the right format; should be a list of two numeric matrices
+           (or vectors, for univariate data)")
+    } 
+    
+    if(is.matrix(x[[1]]) != is.matrix(x[[2]])) {
+      stop("x is not in the right format; should be a list of two numeric matrices
+           (or vectors, for univariate data)")
+    } 
+    
+    val1 <- ifelse(is.matrix(x[[1]]), nrow(x[[1]]), length(x[[1]]))
+    val2 <- ifelse(is.matrix(x[[2]]), nrow(x[[2]]), length(x[[2]]))
+    if(val1 != val2){
+      stop("view 1 should contain the same number of observations as view 2")
+    }
+    
+    if(any(is.na(x[[1]])) || any(is.na(x[[2]])))
+      stop(paste("views cannot contain any missing values"))
 
-  if(any(is.na(x[[1]])) || any(is.na(x[[2]])))
-    stop(paste("views cannot contain any missing values"))
-
-  if(!is.numeric(subset1) || !is.numeric(subset2)) {
-    stop("subset is not in the right format; should be a numeric vector")
-  } else {
+    if(!is.numeric(subset1) || !is.numeric(subset2)) {
+      stop("subset is not in the right format; should be a numeric vector")
+    } 
+    
     if(sum(c(subset1 <= 0, subset2 <= 0)) > 0) {
       stop("cannot provide a subset with a negative index")
-    } else {
-      if(length(subset1) != length(subset2)){
-        stop("the two subsets should contain the same number of observations")
+    } 
+    
+    if(length(subset1) != length(subset2)){
+      stop("the two subsets should contain the same number of observations")
+    }
+    
+    if(!model1 %in% c("E", "V", "EII", "VII", "EEI", "VEI", 
+                      "EVI", "VVI", "EEE", "EVE", "VEE", "VVE", 
+                      "EEV", "VEV", "EVV", "VVV"))
+      stop(paste("Did not pass a valid model for Mclust in View 1") )
+    
+    if(model1 %in% c("E", "V") && is.matrix(x[[1]]))
+      stop(paste(model1, "is a univariate model for Mclust, cannot be used for
+               multivariate data") )
+    
+    if(model1 %in% mclust.options("emModelNames") && !is.matrix(x[[1]]))
+      stop(paste(model1, "is a multivariate model for Mclust, cannot be used for
+               univariate data"))
+    
+    if(!model2 %in% c("E", "V", "EII", "VII", "EEI", "VEI", 
+                      "EVI", "VVI", "EEE", "EVE", "VEE", "VVE", 
+                      "EEV", "VEV", "EVV", "VVV"))
+      stop(paste("Did not pass a valid model for Mclust in View 2") )
+    
+    if(model2 %in% c("E", "V") && is.matrix(x[[2]]))
+      stop(paste(model2, "is a univariate model for Mclust, cannot be used for
+               multivariate data"))
+    if(model2 %in% c("E", "V", "EII", "VII", "EEI", "VEI", 
+                     "EVI", "VVI", "EEE", "EVE", "VEE", "VVE", 
+                     "EEV", "VEV", "EVV", "VVV") && !is.matrix(x[[2]]))
+      stop(paste(model2, "is a multivariate model for Mclust, cannot be used for
+               univariate data") )
+    
+    if(!is.null(init1)) {
+      if(!init1 %in% c("E", "V", "EII", "VII", "EEE", "VVV"))
+        stop(paste("Did not pass a valid initialization model for Mclust in View 1") )
+      
+      if(init1 %in% c("E", "V") && is.matrix(x[[1]]))
+        stop(paste(init1, "is a univariate initialization model for Mclust,
+                 cannot be used for multivariate data") )
+      
+      if(init1 %in% c("EII", "VII", "EEE", "VVV") && !is.matrix(x[[1]]))
+        stop(paste(init1, "is a multivariate initialization model for Mclust,
+                 cannot be used for univariate data"))
+      
+      agree1 <- ((init1 %in% c("E", "V")) == (model1 %in% c("E", "V")))
+      if(!agree1) {
+        stop("In view 1, initialization model is for univariate data,
+           but model is for multivariate data, or
+           initialization model is for multivariate data,
+           but model is for univariate data")
       }
     }
-  }
-  if(!model1 %in% c("E", "V", "EII", "VII", "EEI", "VEI", "EVI", "VVI", "EEE",
-                    "EVE", "VEE", "VVE", "EEV", "VEV", "EVV", "VVV"))
-    stop("Did not pass a valid model for Mclust in View 1")
-
-  if(model1 %in% c("E", "V") && is.matrix(x[[1]]))
-    stop(paste(model1, "is a univariate model for Mclust, cannot be used for
-               multivariate data") )
-
-  if(model1 %in% c("EII", "VII", "EEI", "VEI", "EVI", "VVI", "EEE",
-                   "EVE", "VEE", "VVE", "EEV", "VEV", "EVV", "VVV") && !is.matrix(x[[1]]))
-    stop(paste(model1, "is a multivariate model for Mclust, cannot be used for
-               univariate data"))
-
-  if(!model2 %in% c("E", "V", "EII", "VII", "EEI", "VEI", "EVI", "VVI", "EEE",
-                    "EVE", "VEE", "VVE", "EEV", "VEV", "EVV", "VVV"))
-    stop("Did not pass a valid model for Mclust in View 2")
-
-  if(model2 %in% c("E", "V") && is.matrix(x[[2]]))
-    stop(paste(model2, "is a univariate model for Mclust, cannot be used for
-               multivariate data"))
-  if(model2 %in% c("EII", "VII", "EEI", "VEI", "EVI", "VVI", "EEE",
-                   "EVE", "VEE", "VVE", "EEV", "VEV", "EVV", "VVV") && !is.matrix(x[[2]]))
-    stop(paste(model2, "is a multivariate model for Mclust, cannot be used for
-               univariate data") )
-
-
-  if(is.null(init1)) {
-    init1 <- "VVV"
-  } else {
-    if(!init1 %in% c("E", "V", "VVV", "EEE", "VII", "EII"))
-      stop(paste("Did not pass a valid initialization model for Mclust in View 1") )
-
-    if(init1 %in% c("E", "V") && is.matrix(x[[1]]))
-      stop(paste(init1, "is a univariate initialization model for Mclust,
-                 cannot be used for multivariate data") )
-
-    if(init1 %in% c("VVV", "EEE", "VII", "EII") && !is.matrix(x[[1]]))
-      stop(paste(init1, "is a multivariate initialization model for Mclust,
-                 cannot be used for univariate data"))
-
-    agree1 <- ((init1 %in% c("E", "V")) == (model1 %in% c("E", "V")))
-    if(!agree1) {
-      stop("In view 1, initialization model is for univariate data,
-           but model is for multivariate data, or
-           initialization model is for multivariate data,
-           but model is for univariate data")
-    }
-    }
-
-  if(is.null(init2)) {
-    init2 <-  "VVV"
-  } else {
-    if(!init2 %in% c("E", "V", "VVV", "EEE", "VII", "EII"))
-      stop(paste("Did not pass a valid initialization model for Mclust in View 2") )
-
-    if(init2 %in% c("E", "V") && is.matrix(x[[2]]))
-      stop(paste(init2, "is a univariate initialization model for Mclust,
+    
+    if(!is.null(init2)) {
+      if(!init2 %in% c("E", "V", "EII", "VII", "EEE", "VVV"))
+        stop(paste("Did not pass a valid initialization model for Mclust in View 2") )
+      
+      if(init2 %in% c("E", "V") && is.matrix(x[[2]]))
+        stop(paste(init2, "is a univariate initialization model for Mclust,
                  cannot be used for multivariate data"))
-    if(init2 %in% c("VVV", "EEE", "VII", "EII") && !is.matrix(x[[2]]))
-      stop(paste(init2, "is a univariate initialization model for Mclust,
+      if(init2 %in% c("EII", "VII", "EEE", "VVV") && !is.matrix(x[[2]]))
+        stop(paste(init2, "is a univariate initialization model for Mclust,
                  cannot be used for univariate data") )
-    agree2 <- ((init2 %in% c("E", "V")) == (model2 %in% c("E", "V")))
-    if(!agree2) {
-      stop("In view 2, initialization model is for univariate data,
+      agree2 <- ((init2 %in% c("E", "V")) == (model2 %in% c("E", "V")))
+      if(!agree2) {
+        stop("In view 2, initialization model is for univariate data,
            but model is for multivariate data, or
            initialization model is for multivariate data,
            but model is for univariate data")
+      }
     }
-    }
-
-  if(step <=0 ) stop('Step size for optimization algorithm should be > 0')
-  if(B < 1) stop('Number of permutations should be > 0')
-  if(B <= 50) warning('Number of permutation iterations is specified to be small;
+    
+    if(step <=0 ) stop('Step size for optimization algorithm should be > 0')
+    if(B < 1) stop('Number of permutations should be > 0')
+    if(B <= 50) warning('Number of permutation iterations is specified to be small;
                       p-value approximation will likely be imprecise')
-  if(maxiter %% 1 != 0|| maxiter <= 0) stop('Maximum number of iterations should be
+    if(maxiter %% 1 != 0|| maxiter <= 0) stop('Maximum number of iterations should be
                                             a positive integer')
-
+    if(!is.null(K1)) { 
+      if(!is.numeric(K1)) stop('Number of clusters must be a positive integer in View 1')
+      if(K1 %% 1 != 0 || K1 < 0) stop('Number of clusters must be a positive integer in View 1')
+      if(K1 < 1) stop('Number of clusters must be greater than 1 in View 1')
+    }
+    
+    if(!is.null(K2)) { 
+      if(!is.numeric(K2)) stop('Number of clusters must be a positive integer in View 2')
+      if(K2 %% 1 != 0 || K2 < 0) stop('Number of clusters must be a positive integer in View 2')
+      if(K2 < 1) stop('Number of clusters must be greater than 1 in View 2')
+    }
+  }
+  
+  input_check(x, model1, model2, K1, K2, subset1, subset2, 
+              init1, init2, B, step, maxiter)
+  
+  if(is.null(init1))  init1 <- "VVV"
+  if(is.null(init2))  init2 <- "VVV"
+  
   # Model-based clustering of each view
   if(is.null(K1)) {
     EM.View1 <- mclust::Mclust(x[[1]], G=2:9, modelNames=c(model1),
@@ -248,12 +269,7 @@ test_indep_clust_subset <- function(x,  model1="EII", model2="EII",
                                could not be fitted in view 1")
     K1 <- EM.View1$G
   } else {
-    if(!is.numeric(K1)) stop('Number of clusters must be a positive integer in View 1')
-    if(K1 %% 1 != 0 || K1 < 0) stop('Number of clusters must be a positive integer in View 1')
-    if(K1 < 1) stop('Number of clusters must be greater than 1 in View 1')
-
-
-    EM.View1 <- mclust::Mclust(x[[1]], K1, modelNames=c(model1),
+   EM.View1 <- mclust::Mclust(x[[1]], K1, modelNames=c(model1),
                                initialization=list(hcPairs=hc(x[[1]],
                                                               modelName=init1)))
     if(is.null(EM.View1)) stop("The model specified for model-based clustering
@@ -268,9 +284,6 @@ test_indep_clust_subset <- function(x,  model1="EII", model2="EII",
                                could not be fitted in view 1")
     K2 <- EM.View2$G
   } else {
-    if(!is.numeric(K2)) stop('Number of clusters must be a positive integer in View 2')
-    if(K2 %% 1 != 0 || K2 < 0) stop('Number of clusters must be a positive integer in View 2')
-    if(K2 < 1) stop('Number of clusters must be greater than 1 in View 2')
     EM.View2 <- mclust::Mclust(x[[2]], K2, modelNames=c(model2),
                                initialization=list(hcPairs=hc(x[[2]],
                                                               modelName=init2)))

@@ -5,7 +5,7 @@
 \title{Exponentiated gradient descent for estimating Pi}
 \usage{
 optimize_over_Pi(logphi1, logphi2, row, col, max.iter = 1000,
-  stepsz = 0.001)
+  stepsz = 0.001, Pi.init = NULL)
 }
 \arguments{
 \item{logphi1}{log(phi1), where the n x K1 matrix phi1 is defined in equation (2.9)}
@@ -19,6 +19,8 @@ optimize_over_Pi(logphi1, logphi2, row, col, max.iter = 1000,
 \item{max.iter}{Maximum number of iterations to be run.}
 
 \item{stepsz}{Fixed step size to be used in the optimization; see Appendix B for details.}
+
+\item{Pi.init}{Initializes the optimization algorithm with Pi.init. (Optional)}
 }
 \value{
 List of:
@@ -34,32 +36,29 @@ Data Views Independent?" Derivation of the algorithm is given in Appendix B.
 # Generate two-view Gaussian mixture model data with Pi = I/3
 set.seed(1)
 n <- 100
-sig <- 0.5
-p <- 2
 K <- 3
-mu1 <- cbind(c(2, 0), c(0, 2),  c(2, -2), c(-2, 0), c(0, -2), c(-2, 2))
-mu2 <- cbind(c(-2, 0), c(0, -2), c(-2, 2), c(2, 0), c(0, 2), c(2, -2))
-cl <- sample(1:K, n, replace=TRUE)
-x <- list(matrix(sig* rnorm(n*p), n, p) + t(mu1)[cl, ],
-matrix(sig * rnorm(n*p), n, p) + t(mu2)[cl, ])
-
-# Cluster each view
+p <- 2
+Sigma <- diag(rep(0.5^2, p))
+Pi <- diag(rep(1, K))/K
+mu1 <- cbind(c(2, 0), c(0, 2),  c(2, -2))
+mu2 <- cbind(c(-2, 0), c(0, -2), c(-2, 2))
+dat <- mv_gmm_gen(n, Pi, mu1, mu2, Sigma, Sigma)
+view1dat <- dat$data$view1
+view2dat <- dat$data$view2
 library(mclust)
-EM.View1 <- Mclust(x[[1]], G=3, modelNames=c("EII"))
-EM.View2 <- Mclust(x[[2]], G=3, modelNames=c("EII"))
-
-# Constructs inputs to algorithm
-logphi1 <-  cdens("EII", x[[1]], logarithm=TRUE, EM.View1$parameters)
-logphi2 <-  cdens("EII", x[[2]], logarithm=TRUE, EM.View2$parameters)
+EM.View1 <- Mclust(view1dat, G=K, modelNames=c("EII"))
+EM.View2 <- Mclust(view2dat, G=K, modelNames=c("EII"))
+logphi1 <-  cdens("EII", view1dat, logarithm=TRUE, EM.View1$parameters)
+logphi2 <-  cdens("EII", view2dat, logarithm=TRUE, EM.View2$parameters)
 pi1.est <- EM.View1$parameters$pro
 pi2.est <- EM.View2$parameters$pro
-
-# Estimates Pi
 Pi.est <- optimize_over_Pi(logphi1, logphi2, pi1.est, pi2.est)
 Pi.est$Pi
 
 }
 \references{
 Gao, L.L., Bien, J., Witten, D. (2019) Are Clusterings of Multiple Data Views Independent?
-Biostatistics <DOI:10.1093/biostatistics/kxz001>.
+to appear in Biostatistics, <DOI:10.1093/biostatistics/kxz001>
+
+Gao, L.L., Witten, D., Bien, J. Testing for Association in Multi-View Network Data, preprint.
 }

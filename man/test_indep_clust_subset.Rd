@@ -129,17 +129,16 @@ indep1$modelfit1$parameters
 # The cluster assignments in view 2
 indep1$modelfit2$classification
 
-
 }
 \references{
-Scrucca L., Fop M., Murphy T. B. and Raftery A. E. (2016)
-mclust 5: clustering, classification and density estimation
-using Gaussian finite mixture models, The R Journal, 8/1, pp. 205-233.
-
 Fraley C. and Raftery A. E. (2002) Model-based clustering,
 discriminant analysis and density estimation,
 Journal of the American Statistical Association, 97/458, pp. 611-631.
 
 Gao, L.L., Bien, J., Witten, D. (2019) Are Clusterings of Multiple Data Views Independent?
-Biostatistics <DOI:10.1093/biostatistics/kxz001>.
+Biostatistics, <DOI:10.1093/biostatistics/kxz001>
+
+Scrucca L., Fop M., Murphy T. B. and Raftery A. E. (2016)
+mclust 5: clustering, classification and density estimation
+using Gaussian finite mixture models, The R Journal, 8/1, pp. 205-233.
 }
