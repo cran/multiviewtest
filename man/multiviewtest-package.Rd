@@ -14,7 +14,7 @@ and clusters in a multivariate data view
 }
 \details{
 The PLRT was proposed in Gao, Bien, and Witten (2019) Are Clusterings of 
-Multiple Data Views Independent? Biostatistics, DOI: 10.1093/biostatistics/kxz001.
+Multiple Data Views Independent? Biostatistics, DOI: 10.1093/biostatistics/kxz001. 
 
 The P2LRT was proposed in Gao, Witten, Bien (2019+) Testing for Association 
 in Multi-View Network Data, in preparation.

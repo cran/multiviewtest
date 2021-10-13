@@ -5,9 +5,17 @@
 \title{Pseudo pseudolikelihood ratio test for association between communities in 
 a network view and clusters in a multivariate view}
 \usage{
-test_indep_com_clust(X, K1 = NULL, K2 = NULL, model2 = "EII",
-  init2 = NULL, nperm = 200, step = 0.001, maxiter = 1000,
-  parallel = FALSE)
+test_indep_com_clust(
+  X,
+  K1 = NULL,
+  K2 = NULL,
+  model2 = "EII",
+  init2 = NULL,
+  nperm = 200,
+  step = 0.001,
+  maxiter = 1000,
+  parallel = FALSE
+)
 }
 \arguments{
 \item{X}{Multi-view data with two views; a list of two n x n adjacency matrices.}

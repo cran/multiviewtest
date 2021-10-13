@@ -192,7 +192,7 @@ test_indep_com_clust <- function(X, K1=NULL, K2=NULL, model2="EII",
   EM.View2.param <- EM.View2$parameters
 
 
-  logphi2 <- mclust::cdens(model2, X[[2]], logarithm=TRUE, EM.View2.param)
+  logphi2 <- mclust::cdens(modelName=model2, data=X[[2]], logarithm=TRUE, parameters=EM.View2.param)
   pi2.h <- EM.View2.param$pro
   
   # Computes diag(pi1.h)*C.h*diag(pi2.h)
@@ -215,7 +215,8 @@ test_indep_com_clust <- function(X, K1=NULL, K2=NULL, model2="EII",
       perms <- foreach(i = 1:nperm, .combine=c) %dopar% do_one_perm()
     } else { 
       perms <- replicate(nperm, do_one_perm())  
-      pval <- mean(ifelse(perms >=p2lr.stat, 1, 0), na.rm=T)
+      perms <- perms[!is.na(perms)] # remove any NA's
+      pval <- (sum(perms >= p2lr.stat) + 1)/(length(perms) + 1)
       return(list(K1=K1, K2=K2, Pi.est=Pi.hat$Pi, P2LRstat=p2lr.stat, 
                   pval=pval, modelfit1=cluster.results1, modelfit2=EM.View2))
     }
@@ -226,7 +227,8 @@ test_indep_com_clust <- function(X, K1=NULL, K2=NULL, model2="EII",
       interim.perm <- replicate(1000, do_one_perm())  
     }
     
-    interim.pval <- mean(ifelse(interim.perm >= p2lr.stat, 1, 0), na.rm=T)
+    interim.perm <- interim.perm[!is.na(interim.perm)] # Remove any NA's 
+    interim.pval <- (sum(interim.perm >= p2lr.stat) + 1)/(length(interim.perm) + 1) 
     
     if(interim.pval > 0.1) { 
       cat("Stopped at 1000 permutations (p-value > 0.1)")
@@ -240,7 +242,9 @@ test_indep_com_clust <- function(X, K1=NULL, K2=NULL, model2="EII",
       rest.perm <- replicate(nperm - 1000 + 1, do_one_perm())  
     }
     
-    pval <- mean(ifelse(c(interim.perm, rest.perm) >= p2lr.stat, 1, 0), na.rm=T)
+    final.perm <- c(interim.perm, rest.perm)
+    final.perm <- final.perm[!is.na(final.perm)] # Remove any NA's 
+    pval <- (sum(final.perm >= p2lr.stat) + 1)/(length(final.perm) + 1)
     
     return(list(K1=K1, K2=K2, Pi.est=Pi.hat$Pi, P2LRstat=p2lr.stat, 
                 pval=pval, modelfit1=cluster.results1, modelfit2=EM.View2))

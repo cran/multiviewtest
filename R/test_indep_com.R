@@ -139,7 +139,8 @@ test_indep_com <- function(X, K1=NULL, K2=NULL, nperm=200, step=0.001, maxiter=1
       perms <- foreach(i = 1:nperm, .combine=c) %dopar% do_one_perm()
     } else { 
       perms <- replicate(nperm, do_one_perm())  
-      pval <- mean(ifelse(perms >=p2lr.stat, 1, 0), na.rm=T)
+      perms <- perms[!is.na(perms)] # remove any NA's
+      pval <- (sum(perms >= p2lr.stat) + 1)/(length(perms) + 1)
       return(list(K1=K1, K2=K2, Pi.est=Pi.hat$Pi, P2LRstat=p2lr.stat, 
                   pval=pval, modelfit1=cluster.results1, modelfit2=cluster.results2))
     }
@@ -150,7 +151,8 @@ test_indep_com <- function(X, K1=NULL, K2=NULL, nperm=200, step=0.001, maxiter=1
       interim.perm <- replicate(1000, do_one_perm())  
     }
     
-    interim.pval <- mean(ifelse(interim.perm >= p2lr.stat, 1, 0), na.rm=T)
+    interim.perm <- interim.perm[!is.na(interim.perm)] # Remove any NA's 
+    interim.pval <- (sum(interim.perm >= p2lr.stat) + 1)/(length(interim.perm) + 1) 
   
     if(interim.pval > 0.1) { 
       cat("Stopped at 1000 permutations (p-value > 0.1)")
@@ -163,9 +165,11 @@ test_indep_com <- function(X, K1=NULL, K2=NULL, nperm=200, step=0.001, maxiter=1
     } else { 
       rest.perm <- replicate(nperm - 1000 + 1, do_one_perm())  
     }
-  
-    pval <- mean(ifelse(c(interim.perm, rest.perm) >= p2lr.stat, 1, 0), na.rm=T)
-  
+    
+    final.perm <- c(interim.perm, rest.perm)
+    final.perm <- final.perm[!is.na(final.perm)] # Remove any NA's 
+    pval <- (sum(final.perm >= p2lr.stat) + 1)/(length(final.perm) + 1)
+    
     return(list(K1=K1, K2=K2, Pi.est=Pi.hat$Pi, P2LRstat=p2lr.stat, 
                 pval=pval, modelfit1=cluster.results1, modelfit2=cluster.results2))
   }

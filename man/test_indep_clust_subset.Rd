@@ -4,9 +4,20 @@
 \alias{test_indep_clust_subset}
 \title{Pseudo likelihood ratio test for independence of clusterings}
 \usage{
-test_indep_clust_subset(x, model1 = "EII", model2 = "EII", K1 = NULL,
-  K2 = NULL, subset1, subset2, init1 = NULL, init2 = NULL, B = 200,
-  step = 0.001, maxiter = 1000)
+test_indep_clust_subset(
+  x,
+  model1 = "EII",
+  model2 = "EII",
+  K1 = NULL,
+  K2 = NULL,
+  subset1,
+  subset2,
+  init1 = NULL,
+  init2 = NULL,
+  B = 200,
+  step = 0.001,
+  maxiter = 1000
+)
 }
 \arguments{
 \item{x}{Multi-view data with two views; a list of two numeric vectors

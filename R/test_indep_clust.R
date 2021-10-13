@@ -281,8 +281,8 @@ test_indep_clust <- function(x, model1="EII", model2="EII",
   EM.View2.param <- EM.View2$parameters
 
   # Density matrices for each mixture component
-  logphi1 <-  mclust::cdens(model1, x[[1]], logarithm=TRUE, EM.View1.param)
-  logphi2 <- mclust::cdens(model2, x[[2]], logarithm=TRUE, EM.View2.param)
+  logphi1 <-  mclust::cdens(modelName=model1, x[[1]], logarithm=TRUE, parameters=EM.View1.param)
+  logphi2 <- mclust::cdens(modelName=model2, x[[2]], logarithm=TRUE, parameters=EM.View2.param)
 
   n <- nrow(logphi1)
   pi1.est <- EM.View1.param$pro

@@ -4,8 +4,15 @@
 \alias{optimize_over_Pi}
 \title{Exponentiated gradient descent for estimating Pi}
 \usage{
-optimize_over_Pi(logphi1, logphi2, row, col, max.iter = 1000,
-  stepsz = 0.001, Pi.init = NULL)
+optimize_over_Pi(
+  logphi1,
+  logphi2,
+  row,
+  col,
+  max.iter = 1000,
+  stepsz = 0.001,
+  Pi.init = NULL
+)
 }
 \arguments{
 \item{logphi1}{log(phi1), where the n x K1 matrix phi1 is defined in equation (2.9)}
@@ -48,8 +55,8 @@ view2dat <- dat$data$view2
 library(mclust)
 EM.View1 <- Mclust(view1dat, G=K, modelNames=c("EII"))
 EM.View2 <- Mclust(view2dat, G=K, modelNames=c("EII"))
-logphi1 <-  cdens("EII", view1dat, logarithm=TRUE, EM.View1$parameters)
-logphi2 <-  cdens("EII", view2dat, logarithm=TRUE, EM.View2$parameters)
+logphi1 <-  cdens(modelName="EII", data=view1dat, logarithm=TRUE, parameters=EM.View1$parameters)
+logphi2 <-  cdens(modelName="EII", data=view2dat, logarithm=TRUE, parameters=EM.View2$parameters)
 pi1.est <- EM.View1$parameters$pro
 pi2.est <- EM.View2$parameters$pro
 Pi.est <- optimize_over_Pi(logphi1, logphi2, pi1.est, pi2.est)

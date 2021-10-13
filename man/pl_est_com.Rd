@@ -4,8 +4,7 @@
 \alias{pl_est_com}
 \title{Fits the stochastic block model using maximum pseudolikelihood estimation}
 \usage{
-pl_est_com(X, K = NULL, max.iter = 1000, tol = 1e-08,
-  parallel = FALSE)
+pl_est_com(X, K = NULL, max.iter = 1000, tol = 1e-08, parallel = FALSE)
 }
 \arguments{
 \item{X}{n x n adjacency matrix}

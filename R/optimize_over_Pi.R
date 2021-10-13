@@ -40,8 +40,8 @@
 #' EM.View2 <- Mclust(view2dat, G=K, modelNames=c("EII"))
 
 # Constructs inputs to algorithm
-#' logphi1 <-  cdens("EII", view1dat, logarithm=TRUE, EM.View1$parameters)
-#' logphi2 <-  cdens("EII", view2dat, logarithm=TRUE, EM.View2$parameters)
+#' logphi1 <-  cdens(modelName="EII", data=view1dat, logarithm=TRUE, parameters=EM.View1$parameters)
+#' logphi2 <-  cdens(modelName="EII", data=view2dat, logarithm=TRUE, parameters=EM.View2$parameters)
 #' pi1.est <- EM.View1$parameters$pro
 #' pi2.est <- EM.View2$parameters$pro
 
